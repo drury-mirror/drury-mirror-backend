@@ -1,19 +1,12 @@
 import express from 'express'
-import connection from './database.js'
 import 'dotenv/config'
+import auth from './auth/auth.js'
 
 const app = express()
+
 app.use(express.json())
 
-app.get('/', async (_req, res) => {
-    const [results, _fields] = await connection.query('SELECT * FROM User')
-    res.status(200).json(results)
-})
-
-app.post('/user', async (req, res) => {
-    const body = req.body
-    res.status(200).json(body)
-})
+app.use('/auth', auth)
 
 app.listen(process.env.PORT, () => {
     console.log(`App listening on http://localhost:${process.env.PORT}`)
