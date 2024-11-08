@@ -1,7 +1,8 @@
 import express from 'express'
+import connection from '../database.js'
 import { z } from 'zod'
-import connection from '../../database.js'
-import { v6 } from 'uuid'
+import { v6 as uuid } from 'uuid'
+import bcrypt from 'bcryptjs'
 
 const passwordSchema = z
     .string()
@@ -24,7 +25,7 @@ const userSchema = z.object({
 
 const router = express.Router()
 
-router.post('/user', async (req, res) => {
+router.post('/', async (req, res) => {
     const valid = userSchema.safeParse(req.body)
 
     if (!valid.success) {
@@ -32,17 +33,24 @@ router.post('/user', async (req, res) => {
         return
     }
 
-    // const [users] = await connection.query('select id from user where email = ?', [valid.data?.email])
-    //
-    // if (users.length > 0) {
-    //     res.status(400).json({ message: 'A user with that email already exists.' })
-    //     return
-    // }
+    const [users] = await connection.query('select id from user where email = ?', [valid.data.email])
+
+    if (!Array.isArray(users)) {
+        res.status(500).json({ message: 'Internal server error.' })
+        return
+    }
+
+    if (users.length > 0) {
+        res.status(400).json({ message: 'A user with that email already exists.' })
+        return
+    }
+
+    const id = uuid()
+    const passwordHash = await bcrypt.hash(valid.data.password, 11)
 
     await connection.query('insert into user (id, email, first_name, last_name, password_hash) values (?, ?, ?, ?, ?)',
-        [
-            v6(), valid.data?.email, valid.data?.first_name, valid.data?.last_name, valid.data?.password,
-        ])
+        [id, valid.data.email, valid.data.first_name, valid.data.last_name, passwordHash]
+    )
 
     res.status(200).json(req.body)
 })
