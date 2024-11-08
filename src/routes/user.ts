@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
     const valid = userSchema.safeParse(req.body)
 
     if (!valid.success) {
-        res.status(400).json({ message: 'Invalid form data' })
+        res.status(400).json({ message: 'Invalid form data.' })
         return
     }
 
@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
         [id, valid.data.email, valid.data.first_name, valid.data.last_name, passwordHash]
     )
 
-    res.status(200).json(req.body)
+    res.status(200).json({ message: 'User created.' })
 })
 
 export default router

@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     const valid = loginSchema.safeParse(req.body)
 
     if (!valid.success) {
-        res.status(400).json({ message: 'Invalid form data' })
+        res.status(400).json({ message: 'Invalid form data.' })
         return
     }
 
@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
         return
     }
 
-    res.status(200).json(req.body)
+    res.status(200).json({ message: 'Login successful.' })
 })
 
 export default router
